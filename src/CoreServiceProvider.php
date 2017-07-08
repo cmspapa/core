@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\View;
 use Symfony\Component\Yaml\Yaml;
 use Composer\Autoload\ClassLoader;
 
+use Illuminate\Filesystem\Filesystem;
+
 class CoreServiceProvider extends ServiceProvider
 {
     protected $defer = true;
@@ -21,15 +23,54 @@ class CoreServiceProvider extends ServiceProvider
     {
         /*
          |--------------------------------------------------------------------------
+         | Load themes from themes folder
+         |--------------------------------------------------------------------------
+         */
+        $coreThemes = array_filter(glob(__DIR__.'/themes/*'));
+        $appThemes = array_filter(glob(base_path('themes').'/*'));
+        $themes = array_merge($coreThemes, $appThemes);
+
+        // File system
+        $fs = new Filesystem();
+
+        // Loop through themes.
+        foreach ($themes as $theme) {
+            
+            /*
+            |--------------------------------------------------------------------------
+            |  Link theme assets
+            |--------------------------------------------------------------------------
+            */
+            if(file_exists($theme.'/assets') && !file_exists(base_path('public/themes_'.basename($theme).'_assets'))){
+                $fs->link($theme.'/assets', base_path('public/themes_'.basename($theme).'_assets'));
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            |  Load theme views
+            |--------------------------------------------------------------------------
+            */
+
+            $this->loadViewsFrom($theme, basename($theme));
+            
+        }
+
+        /*
+         |--------------------------------------------------------------------------
          | Load modules from modules folder
          |--------------------------------------------------------------------------
          */
-        $modules = array_filter(glob(base_path('modules').'/*'));
+
+        $coreModules = array_filter(glob(__DIR__.'/modules/*'));
+        $appModules = array_filter(glob(base_path('modules').'/*'));
+        $modules = array_merge($coreModules, $appModules);
 
         foreach ($modules as $module) {
             
-            if(file_exists($module.'/services.yml')){
-                $yamlContents = Yaml::parse(file_get_contents($module.'/services.yml'));
+            if(file_exists($module.'/src/admin_menu.yml')){
+                $adminMenu = Yaml::parse(file_get_contents($module.'/src/admin_menu.yml'));
+                // dd($adminMenu);
+                View::share('adminMenu', $adminMenu);
             }
 
             /*
@@ -46,7 +87,7 @@ class CoreServiceProvider extends ServiceProvider
             |--------------------------------------------------------------------------
             */
 
-            $moduleRoutesFiles = array_filter(glob(base_path('modules/'.basename($module).'/src/routes').'/*.php'));
+            $moduleRoutesFiles = array_filter(glob($module.'/src/routes/*.php'));
             foreach ($moduleRoutesFiles as $moduleRoutesFile) {
                 $this->loadRoutesFrom($moduleRoutesFile);
             }
@@ -193,29 +234,46 @@ class CoreServiceProvider extends ServiceProvider
         if (file_exists(base_path('packages/cmspapa/core/src/Controllers'))){
             $loader->setPsr4('Cmspapa\\Core\\Controllers\\', base_path('packages/cmspapa/core/src/Controllers'));
         }
-        
-        $modules = array_filter(glob(base_path('modules').'/*'));
 
+        // Load core modules
+        if(is_dir(base_path('packages/cmspapa/core/src/modules'))){
+            $coreModules = array_filter(glob(base_path('packages/cmspapa/core/src/modules').'/*'));
+            $this->loadModulesPsr4($loader, $coreModules, base_path('packages/cmspapa/core/src/modules'));
+        }else{
+            $coreModules = array_filter(glob(base_path('vendor/cmspapa/core/src/modules').'/*'));
+            $this->loadModulesPsr4($loader, $coreModules, base_path('vendor/cmspapa/core/src/modules'));
+        }
+        
+        // Load app modules
+        $appModules = array_filter(glob(base_path('modules').'/*'));
+        $this->loadModulesPsr4($loader, $appModules, base_path('modules'));
+
+    }
+
+    /**
+     * Load modules psr4.
+     *
+     * @return void
+     */
+    public function loadModulesPsr4($loader, $modules, $modulesFolderPath)
+    {
         foreach ($modules as $module) {
             // PSR4 modules controllers
-            $loader->setPsr4('Cmspapa\\'.basename($module).'\\Controllers\\', base_path('modules').'/'.basename($module).'/src/Controllers');
+            $loader->setPsr4('Cmspapa\\'.basename($module).'\\Controllers\\', $module.'/src/Controllers');
 
             // PSR4 modules models
-            $loader->setPsr4('Cmspapa\\'.basename($module).'\\Models\\', base_path('modules').'/'.basename($module).'/src/Models');
+            $loader->setPsr4('Cmspapa\\'.basename($module).'\\Models\\', $module.'/src/Models');
 
             // PSR4 providers
-            $loader->setPsr4('Cmspapa\\'.basename($module).'\\Providers\\', base_path('modules').'/'.basename($module).'/src/Providers');
+            $loader->setPsr4('Cmspapa\\'.basename($module).'\\Providers\\', $module.'/src/Providers');
 
             // Auto load all service providers for module
-            $moduleProviders = array_filter(glob(base_path('modules/'.basename($module).'/src/Providers').'/*'));
+            $moduleProviders = array_filter(glob($module.'/src/Providers/*'));
             foreach ($moduleProviders as $moduleProvider) {
                 $providerClass = 'Cmspapa\\'.basename($module).'\\Providers\\'.basename($moduleProvider, '.php');
                 $this->app->register($providerClass);
             }
-            
         }
-
-       
     }
 
 }
