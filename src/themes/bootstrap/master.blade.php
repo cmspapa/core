@@ -23,14 +23,21 @@
         color:#fff;
       }
     </style>
+    <link href="/themes_bootstrap_assets/elementor.css" rel="stylesheet">
   </head>
   <body>
-    <h1 style="text-align: center">Hello, CMSPAPA! <a href="/admin">Start building</a></h1>
+    <div id="page-builder">
+
+
+    </div>
 
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="/themes_bootstrap_assets/js/bootstrap.min.js"></script>
+    <script src="/themes_bootstrap_assets/jquery-ui/jquery-ui.min.js"></script>
+    <script src="/themes_bootstrap_assets/elementor.js"></script>
   </body>
+  
 </html>
