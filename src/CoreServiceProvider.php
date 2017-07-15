@@ -65,10 +65,11 @@ class CoreServiceProvider extends ServiceProvider
         $appModules = array_filter(glob(base_path('modules').'/*'));
         $modules = array_merge($coreModules, $appModules);
 
+        $adminMenu = [];
         foreach ($modules as $module) {
             
             if(file_exists($module.'/src/admin_menu.yml')){
-                $adminMenu = Yaml::parse(file_get_contents($module.'/src/admin_menu.yml'));
+                $adminMenu[] = Yaml::parse(file_get_contents($module.'/src/admin_menu.yml'));
                 // dd($adminMenu);
                 View::share('adminMenu', $adminMenu);
             }
@@ -101,7 +102,6 @@ class CoreServiceProvider extends ServiceProvider
             $this->loadViewsFrom($module.'/src/views', basename($module));
 
         }
-
 
 
         // /*
