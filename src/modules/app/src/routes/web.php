@@ -12,6 +12,4 @@
 */
 
 
-Route::get('/', function () {
-    return view('app::home');
-});
+Route::get('/', '\Cmspapa\app\Controllers\AppController@index');

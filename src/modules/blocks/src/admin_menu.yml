@@ -1,9 +1,9 @@
 #header: Main menu
 items:
   item:
-    name: Structure
-    link: /admin/structure
-    fa_icon: building-o
+    name: Blocks
+    link: /admin/blocks
+    fa_icon: table
   #   sub_menu:
   #     item:
   #       name: Item1

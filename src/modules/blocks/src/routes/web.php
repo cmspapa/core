@@ -11,7 +11,5 @@
 |
 */
 
-
-Route::get('/admin/structure', 'Cmspapa\structure\Controllers\StructureController@index');
-Route::get('/admin/structure/get-structure', 'Cmspapa\structure\Controllers\StructureController@getStructure');
-Route::post('/admin/structure/save', 'Cmspapa\structure\Controllers\StructureController@save');
+Route::get('/admin/blocks', 'Cmspapa\blocks\Controllers\BlocksController@index');
+Route::post('/admin/blocks', 'Cmspapa\blocks\Controllers\BlocksController@save');

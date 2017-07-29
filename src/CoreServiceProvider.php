@@ -52,6 +52,12 @@ class CoreServiceProvider extends ServiceProvider
             */
 
             $this->loadViewsFrom($theme, basename($theme));
+
+            // Structure
+            if(file_exists($theme.'/structure.yml')){
+                $papaStructure = Yaml::parse(file_get_contents($theme.'/structure.yml'));
+                View::share('papaStructure', $papaStructure);
+            }
             
         }
 
@@ -67,13 +73,48 @@ class CoreServiceProvider extends ServiceProvider
 
         $adminMenu = [];
         foreach ($modules as $module) {
-            
+            $moduleName = basename($module);
+
+            /*
+            |--------------------------------------------------------------------------
+            | Admin menu
+            |--------------------------------------------------------------------------
+            */
+
             if(file_exists($module.'/src/admin_menu.yml')){
                 $adminMenu[] = Yaml::parse(file_get_contents($module.'/src/admin_menu.yml'));
                 // dd($adminMenu);
                 View::share('adminMenu', $adminMenu);
             }
 
+            /*
+            |--------------------------------------------------------------------------
+            | Blocks
+            |--------------------------------------------------------------------------
+            */
+            $blocks = glob($module.'/src/block_*');
+            if($blocks){
+                foreach ($blocks as $block) {
+                   $blockName = basename($block);
+                   $moduleName_blockName = $moduleName.'_'.$blockName;
+
+                    if(file_exists($block.'/blockController.php')){
+                        $blockContent = new \Cmspapa\mymodule\block_test\blockController;
+                        $blockContent = $blockContent->blockContent();
+                        View::share($moduleName_blockName, $blockContent);
+                    }
+                    
+                    if(file_exists($block.'/block.blade.php')){
+                        // load block views
+                        $this->loadViewsFrom($module.'/src/'.$blockName, $moduleName_blockName);
+                        // $moduleName_blockViewPath = $module.'/'.$blockName.'/block.blade.php';
+                        // //dd($moduleName_blockViewPath);
+                        // View::share($moduleName_blockName.'_viewPath', $moduleName_blockViewPath);
+                    }
+                }
+            }
+            
+            
             /*
             |--------------------------------------------------------------------------
             | Migrations
@@ -101,7 +142,10 @@ class CoreServiceProvider extends ServiceProvider
 
             $this->loadViewsFrom($module.'/src/views', basename($module));
 
+
+
         }
+
 
 
         // /*
@@ -124,23 +168,6 @@ class CoreServiceProvider extends ServiceProvider
         // $this->publishes([
         //     __DIR__.'/config/cmspapa.php' => config_path('cmspapa.php'),
         // ], 'config');
-
-
-
-        // /*
-        // |--------------------------------------------------------------------------
-        // | Views
-        // |--------------------------------------------------------------------------
-        // */
-
-        // // The package views have not been published. Use the defaults.
-        // $this->loadViewsFrom(__DIR__.'/views', 'Core');
-
-        // // Publish views if we need to customize views instead of default one. 
-        // $this->publishes([
-        //     __DIR__.'/views' => base_path('resources/views/vendor/core'),
-        // ], 'views');
-
 
 
 
@@ -258,6 +285,8 @@ class CoreServiceProvider extends ServiceProvider
     public function loadModulesPsr4($loader, $modules, $modulesFolderPath)
     {
         foreach ($modules as $module) {
+            // PSR4 modules all folders under module folder
+            $loader->setPsr4('Cmspapa\\'.basename($module).'\\', $module.'/src');
             // PSR4 modules controllers
             $loader->setPsr4('Cmspapa\\'.basename($module).'\\Controllers\\', $module.'/src/Controllers');
 

@@ -1,16 +1,21 @@
 @extends(config('app.app_theme').'::master')
 @section('head_scripts')
 {{-- Add css or js to header --}}
+
 @endsection
 @section('title')
-Dashboard
+My title here
 @endsection
-@section('content')
-{{-- Add main page content --}} 
-@endsection
-@section('footer_right')
-{{-- Anything you want --}} 
-@endsection
+
+@foreach($regions as $region)
+	@section($region['id'])
+		@foreach($region['blocks'] as $block)
+			@include($block['id'].'::block')
+		@endforeach
+	@endsection
+@endforeach
+
 @section('footer_scripts')
-{{-- Add css or js to header --}}
+{{-- Add css or js to footer --}}
+
 @endsection
