@@ -1,17 +1,4 @@
-#header: Main menu
-items:
-  item:
-    name: Dashboard
-    link: /admin
-    fa_icon: dashboard
-  #   sub_menu:
-  #     item:
-  #       name: Item1
-  #       link: item1
-  #       fa_icon: link
-  #     item2:
-  #       name: Item2
-  #       link: item2
-  # item2:
-  #   name: Other link
-  #   link: /other-link
+-
+  name: Dashboard
+  link: admin
+  fa_icon: dashboard

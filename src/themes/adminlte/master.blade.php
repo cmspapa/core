@@ -258,50 +258,67 @@ desired effect
 
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu">
-        @if(isset($adminMenu['header']))
-          <li class="header">{{ $adminMenu['header'] }}</li>
-        @endif
-        @foreach($adminMenu as $menu)
-          @foreach($menu['items'] as $menuItem)
-            @if(isset($menuItem['link']))
-              <li class="@if(Request::is($menuItem['link'])) active @endif @if(isset($menuItem['sub_menu'])) treeview @endif">
-                  <a href="{{$menuItem['link']}}">
-                    @if(isset($menuItem['fa_icon']))
-                      <i class="fa fa-{{$menuItem['fa_icon']}}"></i>
-                    @elseif(isset($menuItem['sub_menu']))
-                      <i class="fa fa-plus-square-o"></i>
-                    @else
-                      <i class="fa fa-paper-plane-o"></i>
-                    @endif 
-                    @if(isset($menuItem['name']))<span>{{$menuItem['name']}}</span>@endif
-                    {{-- Check if item have sub menu --}}
-                    @if(isset($menuItem['sub_menu']))
-                      <span class="pull-right-container">
-                        <i class="fa fa-angle-left pull-right"></i>
-                      </span>
-                    @endif
-                  </a>
-                  @if(isset($menuItem['sub_menu']))
-                    <ul class="treeview-menu">
-                      @foreach($menuItem['sub_menu'] as $subMenuItem)
-                        @if(isset($subMenuItem['link']))
-                          <li class="@if(Request::is($subMenuItem['link'])) active @endif">
-                            <a href="{{$subMenuItem['link']}}">
-                              @if(isset($subMenuItem['fa_icon']))
-                                <i class="fa fa-{{$subMenuItem['fa_icon']}}"></i>
-                              @else
-                                <i class="fa fa-minus"></i>
-                              @endif 
-                              @if(isset($subMenuItem['name']))<span>{{$subMenuItem['name']}}</span>@endif
-                            </a>
-                          </li>
-                        @endif
-                      @endforeach
-                    </ul>
+          {{-- <li class="header"></li> --}}
+        @php
+          $adminMenu = array_collapse($adminMenu);
+          $adminMenu = array_values(array_sort($adminMenu, function ($value) use($adminMenu) {
+            if(isset($value['order'])){
+              return $value['order'];
+            }
+            // Return default key
+            return array_search($value, $adminMenu);
+          }));
+        @endphp
+          
+        @foreach($adminMenu as $menuItem)
+          @if(isset($menuItem['link']))
+            <li class="@if(Request::is($menuItem['link'])) active @endif @if(isset($menuItem['sub_menu'])) treeview @endif">
+                @php
+                  if(substr($menuItem['link'], 0, 4 ) !== "http"){
+                    $menuItem['link'] = '/'.$menuItem['link'];
+                  }
+                @endphp
+                <a href="{{$menuItem['link']}}">
+                  @if(isset($menuItem['fa_icon']))
+                    <i class="fa fa-{{$menuItem['fa_icon']}}"></i>
+                  @elseif(isset($menuItem['sub_menu']))
+                    <i class="fa fa-plus-square-o"></i>
+                  @else
+                    <i class="fa fa-paper-plane-o"></i>
+                  @endif 
+                  @if(isset($menuItem['name']))<span>{{$menuItem['name']}}</span>@endif
+                  {{-- Check if item have sub menu --}}
+                  @if(isset($menuItem['items']))
+                    <span class="pull-right-container">
+                      <i class="fa fa-angle-left pull-right"></i>
+                    </span>
                   @endif
-              </li>
-            @endif
-          @endforeach
+                </a>
+                @if(isset($menuItem['items']))
+                  <ul class="treeview-menu">
+                    @foreach($menuItem['items'] as $subMenuItem)
+                      @php
+                        if(substr($subMenuItem['link'], 0, 4 ) !== "http"){
+                          $subMenuItem['link'] = '/'.$subMenuItem['link'];
+                        }
+                      @endphp
+                      @if(isset($subMenuItem['link']))
+                        <li class="@if(Request::is($subMenuItem['link'])) active @endif">
+                          <a href="{{$subMenuItem['link']}}">
+                            @if(isset($subMenuItem['fa_icon']))
+                              <i class="fa fa-{{$subMenuItem['fa_icon']}}"></i>
+                            @else
+                              <i class="fa fa-minus"></i>
+                            @endif 
+                            @if(isset($subMenuItem['name']))<span>{{$subMenuItem['name']}}</span>@endif
+                          </a>
+                        </li>
+                      @endif
+                    @endforeach
+                  </ul>
+                @endif
+            </li>
+          @endif
         @endforeach
       </ul>
       @yield('sidebar')
