@@ -72,9 +72,19 @@ class CoreServiceProvider extends ServiceProvider
         $modules = array_merge($coreModules, $appModules);
 
         $adminMenu = [];
-        foreach ($modules as $module) {
+        foreach ($modules as $key => $module) {
             $moduleName = basename($module);
+            if($moduleName == 'app'){
+                $app = $modules[$key];
+                unset($modules[$key]);
+            }
+            if($key == count($modules)){
+                $modules[] = $app;
+            }
+        }
 
+        foreach ($modules as $key => $module) {
+            $moduleName = basename($module);
             /*
             |--------------------------------------------------------------------------
             | Admin menu
@@ -112,6 +122,27 @@ class CoreServiceProvider extends ServiceProvider
                         // View::share($moduleName_blockName.'_viewPath', $moduleName_blockViewPath);
                     }
                 }
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Vue components
+            |--------------------------------------------------------------------------
+            */
+            $vueComponents = glob($module.'/src/vue/*.vue');
+            $components = [];
+            if($vueComponents){
+                foreach ($vueComponents as $vueComponent) {
+                    $componentName = str_replace('.vue', '', basename($vueComponent));
+                    // Create new Object
+                    $component = new \stdClass();
+                    $component->name = $componentName;
+                    //$component->path = str_replace(base_path('').'/', '', $vueComponent);
+                    $component->module_name = $moduleName;
+                    // @todo we can provide boolean type is_core to change directory at app.js which load vue components.
+                    $components[] = $component;
+                }
+                View::share('vueComponents', $components);
             }
             
             
@@ -257,6 +288,7 @@ class CoreServiceProvider extends ServiceProvider
         $loader = require base_path() . '/vendor/autoload.php';
 
         // CMSPAPA DEVELOPMENT 
+        $loader->setPsr4('Cmspapa\\Core\\', base_path('packages/cmspapa/core/src'));
         // PSR4 core controllers in cms papa development env
         if (file_exists(base_path('packages/cmspapa/core/src/Controllers'))){
             $loader->setPsr4('Cmspapa\\Core\\Controllers\\', base_path('packages/cmspapa/core/src/Controllers'));
@@ -274,6 +306,10 @@ class CoreServiceProvider extends ServiceProvider
         // Load app modules
         $appModules = array_filter(glob(base_path('modules').'/*'));
         $this->loadModulesPsr4($loader, $appModules, base_path('modules'));
+
+        $this->app->register('Illuminate\Foundation\Providers\ConsoleSupportServiceProvider');
+        // Register database provider
+        $this->app->register('Cmspapa\Core\Database\Seeds\SeedServiceProvider');
 
     }
 

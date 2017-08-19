@@ -15,3 +15,5 @@
 Route::get('/admin/structure', 'Cmspapa\structure\Controllers\StructureController@index');
 Route::get('/admin/structure/get-structure', 'Cmspapa\structure\Controllers\StructureController@getStructure');
 Route::post('/admin/structure/save', 'Cmspapa\structure\Controllers\StructureController@save');
+
+Route::get('/admin/structure/get-structure-with-components', 'Cmspapa\structure\Controllers\StructureController@getStructureWithComponents');

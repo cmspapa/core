@@ -1,0 +1,24 @@
+-
+  name: Content types
+  link: admin/content-types
+  fa_icon: database
+  order: 4
+  items:
+    -
+      name: List content types
+      link: admin/content-types
+    -
+      name: Create content type
+      link: admin/content-types/create
+-
+  name: Contents
+  link: admin/contents
+  fa_icon: database
+  order: 5
+  items:
+    -
+      name: List contents
+      link: admin/contents
+    -
+      name: Create content
+      link: admin/contents/create

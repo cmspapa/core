@@ -1,0 +1,9 @@
+-
+  name: Components
+  link: admin/components
+  fa_icon: table
+  order: 2
+  # items:
+    # - 
+      # name: Add Component
+      # link: admin/component

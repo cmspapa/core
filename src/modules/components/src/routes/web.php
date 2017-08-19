@@ -11,6 +11,5 @@
 |
 */
 
-
-Route::get('/', '\Cmspapa\app\Controllers\AppController@index');
-Route::get('/{vue?}', '\Cmspapa\app\Controllers\AppController@index')->where('vue', '[\/\w\.-]*');
+Route::get('/admin/components', 'Cmspapa\components\Controllers\ComponentsController@index');
+Route::post('/admin/components', 'Cmspapa\components\Controllers\ComponentsController@save');

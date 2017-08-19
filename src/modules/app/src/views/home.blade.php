@@ -9,6 +9,7 @@ My title here
 
 @foreach($regions as $region)
 	@section($region['id'])
+		{{-- Normal blocks --}}
 		@foreach($region['blocks'] as $block)
 			@include($block['id'].'::block')
 		@endforeach

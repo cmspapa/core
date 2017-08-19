@@ -272,7 +272,7 @@ desired effect
           
         @foreach($adminMenu as $menuItem)
           @if(isset($menuItem['link']))
-            <li class="@if(Request::is($menuItem['link'])) active @endif @if(isset($menuItem['sub_menu'])) treeview @endif">
+            <li class="@if(Request::is($menuItem['link'].'*') && $menuItem['link'] !== 'admin') active @endif @if(isset($menuItem['sub_menu'])) treeview @endif">
                 @php
                   if(substr($menuItem['link'], 0, 4 ) !== "http"){
                     $menuItem['link'] = '/'.$menuItem['link'];
@@ -297,13 +297,13 @@ desired effect
                 @if(isset($menuItem['items']))
                   <ul class="treeview-menu">
                     @foreach($menuItem['items'] as $subMenuItem)
-                      @php
-                        if(substr($subMenuItem['link'], 0, 4 ) !== "http"){
-                          $subMenuItem['link'] = '/'.$subMenuItem['link'];
-                        }
-                      @endphp
                       @if(isset($subMenuItem['link']))
                         <li class="@if(Request::is($subMenuItem['link'])) active @endif">
+                          @php
+                            if(substr($subMenuItem['link'], 0, 4 ) !== "http"){
+                              $subMenuItem['link'] = '/'.$subMenuItem['link'];
+                            }
+                          @endphp
                           <a href="{{$subMenuItem['link']}}">
                             @if(isset($subMenuItem['fa_icon']))
                               <i class="fa fa-{{$subMenuItem['fa_icon']}}"></i>
@@ -343,6 +343,23 @@ desired effect
     <!-- Main content -->
     <section class="content">
       <!-- Your Page Content Here -->
+      @if (Session::has('message'))
+          <div class="alert {{ Session::get('alert-class', 'alert-info') }}">
+              <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              {{ Session::get('message') }}
+          </div>
+      @endif
+
+      @if(isset($errors) && $errors->any())
+          <div class="alert alert-danger">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+              <ul>
+                  @foreach ($errors->all() as $error)
+                      <li>{{ $error }}</li>
+                  @endforeach
+              </ul>
+          </div>
+      @endif
       @yield('content')
     </section>
     <!-- /.content -->
@@ -451,6 +468,8 @@ desired effect
      Both of these plugins are recommended to enhance the
      user experience. Slimscroll is required when using the
      fixed layout. -->
+{{-- Temp CMSPAPA build panel js  --}}
+<script src="/themes_adminlte_assets/cmspapa.js"></script>
 @yield('footer_scripts')
 </body>
 </html>

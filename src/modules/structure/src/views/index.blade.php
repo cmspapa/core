@@ -8,7 +8,7 @@
             padding: 20px;
             background: #fff;
         }
-        .structure-navbar, .structure-carousel, .structure-jumbotron, .structure-container, .structure-container-fluid, .structure-footer {
+        .structure-navbar, .structure-carousel, .structure-jumbotron, .structure-container, .structure-container-fluid, .structure-footer, .structure-empty-section {
             min-height: 100px;
             border: 1px solid #ccc;
             background: #eee;
@@ -59,6 +59,7 @@
         }
 
     </style>
+    {{-- Sortable --}}
 @endsection
 @section('title')
 Structure
@@ -79,18 +80,21 @@ Structure
         <div class="col-md-12">
             <div class="structure-builder">
                 <div class="element-info"><span class="element-title"> Body </span></div>
-                <div id="level_one" class="level_one form-inline">
-                    <div class="form-group">
-                        <select id="level_one_select" class="form-control">
-                            <option value="navbar">Navbar</option>
-                            <option value="carousel">Carousel</option>
-                            <option value="jumbotron">Jumbotron</option>
-                            <option value="container-fluid">Container fluid</option>
-                            <option value="container">Container</option>
-                            <option value="footer">Footer</option>
-                        </select>
+                <div id="sortable_builder">
+                    <div id="level_one" class="level_one form-inline">
+                        <div class="form-group">
+                            <select id="level_one_select" class="form-control">
+                                <option value="empty-section">Empty section</option>
+                                <option value="navbar">Navbar</option>
+                                <option value="carousel">Carousel</option>
+                                <option value="jumbotron">Jumbotron</option>
+                                <option value="container-fluid">Container fluid</option>
+                                <option value="container">Container</option>
+                                <option value="footer">Footer</option>
+                            </select>
+                        </div>
+                        <a id="level_one_btn" class="btn btn-primary">Add</a>
                     </div>
-                    <a id="level_one_btn" class="btn btn-primary">Add</a>
                 </div>
 
             </div>
@@ -171,7 +175,7 @@ function getLevelOneComponentIntegerId(levelOneComponentId) {
  * @parm levelOneComponentType
  */
 function generateLevelOne(levelOneComponentId, levelOneComponentType, levelOneComponentRegionName = '') {
-    $('#level_one').before('<div id="'+levelOneComponentId+'" class="structure-'+ levelOneComponentType +'"><div class="element-info"><span class="element-title"> '+ levelOneComponentType +' </span></div>'+levelOneComponentInnerHtml(levelOneComponentId, levelOneComponentType)+'</div>');
+    $('#level_one').before('<div id="'+levelOneComponentId+'" class="structure-'+ levelOneComponentType +'"><div class="element-info"><span class="element-title"> '+ levelOneComponentType.replace(/\b\w/g, l => l.toUpperCase()) +' </span></div>'+levelOneComponentInnerHtml(levelOneComponentId, levelOneComponentType)+'</div>');
     // Add default region name
     $('#region_'+levelOneComponentId).val(levelOneComponentRegionName);
     // Listen to region name change
@@ -654,4 +658,36 @@ function saveStructure() {
 }
 
 </script>
+{{-- /* Sortable */ --}}
+    {{-- <script src="https://code.jquery.com/jquery-1.12.4.js"></script> --}}
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+  $( function() {
+    $('#sortable_builder').sortable({
+        // classes: {
+        //     "ui-sortable": "builder-sortable",
+        //     "ui-sortable-handle": "builder-sortable-handle",
+        //     "ui-sortable-placeholder": "builder-sortable-placeholder",
+        //     "ui-sortable-helper": "builder-sortable-helper"
+        // },
+        items: '> div:not(:last)',
+        stop: function( event, ui ) {
+            // saveLevelOneOrder(ui.item[0].id);
+            saveLevelOneOrders();
+        }
+    });
+    $('#sortable_builder').disableSelection();
+
+    function saveLevelOneOrders() {
+        var levelOneIds = $('#sortable_builder').sortable('toArray');
+        for(var i = 0; i < levelOneIds.length; i++){
+            console.log(levelOneIds[i]);
+            structure[levelOneIds[i]].order = i;
+        }
+        // Save Structure
+        saveStructure();
+    }
+
+  });
+  </script>
 @endsection
