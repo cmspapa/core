@@ -7,6 +7,7 @@ use Cmspapa\Core\Controllers\Controller;
 use Cmspapa\components\Models\RegionComponent;
 use Cmspapa\components\Traits\RegionsComponentsTrait;
 
+use Cmspapa\content\Controllers\ContentsController;
 class componentsController extends Controller
 {
     use RegionsComponentsTrait;
@@ -48,5 +49,35 @@ class componentsController extends Controller
         }
         //@todo return message 
         return back();
+    }
+
+    /**
+     * .
+     *
+     * @return response
+     */
+    public function viewPath(Request $request)
+    {
+        $data = [];
+        $path = $request->path;
+        if(startsWith($path, 'content')){
+            $paramaters = explode('/',$path);
+            if(isset($paramaters[2]) && is_numeric($paramaters[2])){
+                $data = $this->findContentById($paramaters[2]);
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * .
+     *
+     * @return response
+     */
+    public function findContentById($contentId)
+    {
+        $content = new ContentsController;
+        $content = $content->getContentById($contentId);
+        return response()->json($content);
     }
 }

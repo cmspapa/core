@@ -106,4 +106,36 @@ class ContentsController extends Controller
         // @todo return message
         return redirect(action('\Cmspapa\content\Controllers\ContentsController@index', $contentTypeId));
     }
+
+    /**
+     * .
+     *
+     * @return view
+     */
+    public function getContentById($contentId)
+    {
+        $contentModel = Content::find($contentId);
+        $content = DB::table('contents')->where('id', $contentId);
+        $content = $content->select('contents.*');
+
+        $fields = Field::where('bundle', 'content')->where('bunch', $contentModel->content_type)->get();
+        foreach ($fields as $field) {
+            $content = $content->join($field->field_id, function ($join) use ($field) {
+                $join->on('contents.id', '=', $field->field_id.'.item_id')
+                     ->where($field->field_id.'.bundle', 'content');
+            });
+            $content = $content->addSelect($field->field_id.'.field_value AS '.$field->field_id);
+        }
+
+        $content = $content->get()->first();
+        $data = [];
+        $key = 0;
+        foreach ($content as $fieldId => $fieldValue) {
+            $data[$key]['field_id']= $fieldId;
+            $data[$key]['field_value']= $fieldValue;
+            $key++;
+        }
+
+        return $data;
+    }
 }

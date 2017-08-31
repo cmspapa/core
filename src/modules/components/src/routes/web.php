@@ -13,3 +13,4 @@
 
 Route::get('/admin/components', 'Cmspapa\components\Controllers\ComponentsController@index');
 Route::post('/admin/components', 'Cmspapa\components\Controllers\ComponentsController@save');
+Route::post('/admin/components/vue-path', 'Cmspapa\components\Controllers\ComponentsController@viewPath');

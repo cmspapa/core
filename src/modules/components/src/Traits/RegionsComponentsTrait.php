@@ -102,6 +102,7 @@ trait RegionsComponentsTrait
             $moduleName = basename($module);
             $componentsPaths = glob($module.'/src/vue/*.vue');
             $components = [];
+
             if($componentsPaths){
                 foreach ($componentsPaths as $key => $component) {
                     $componentId = $moduleName.'_'.str_replace('.vue', '', basename($component));
@@ -110,18 +111,28 @@ trait RegionsComponentsTrait
                     $components[$key]['module_name'] = $moduleName;
                 }
             }
+            // Add default component Content
+            $components[$key+1]['id'] = 'core_content';
+            $components[$key+1]['name'] = 'Content';
+            $components[$key+1]['module_name'] = 'core';
             return $components;
         }
     }
 
     /**
-     * 
-     * 
+     *
+     *
      * @param $regionId integer
      * @return array
      */
     public function getComponentInfoById($componentId)
     {
+        // Check for default components "Content"
+        if($componentId == 'core_content'){
+          $info['name'] = 'Content';
+          $info['module_name'] = 'Core';
+          return $info;
+        }
         foreach ($this->getModules() as $module) {
             $moduleName = basename($module);
             $componentsPaths = glob($module.'/src/vue/*.vue');
@@ -138,8 +149,8 @@ trait RegionsComponentsTrait
     }
 
     /**
-     * 
-     * 
+     *
+     *
      * @param $regionId integer
      * @return array
      */
@@ -156,8 +167,8 @@ trait RegionsComponentsTrait
     }
 
     /**
-     * 
-     * 
+     *
+     *
      * @return array
      */
     public function getNoneRegionComponents()
